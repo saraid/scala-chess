@@ -20,7 +20,7 @@ object Main extends App {
       val squares: Map[String, Square] = (for {
         file <- List("a", "b", "c", "d", "e", "f", "g", "h")
         rank <- 1 to 8
-      } yield (s"$file$rank", new Square(rank, file))).toMap
+      } yield (s"$file$rank", Square(rank, file))).toMap
 
       def ++(newSquares: List[Square]): Board = newSquares.foldLeft(this) { (newBoard, square) => newBoard.occupy(square) }
 
@@ -29,12 +29,12 @@ object Main extends App {
       def occupy(target: String, piece: Option[Piece]): Board = {
         val oldBoard = this
         new Board {
-          override val squares: Map[String, Square] = oldBoard.squares.map((
+          override val squares: Map[String, Square] = oldBoard.squares.map(
             position => (position._1, if (position._2.position == target)
-              new Square(position._2.rank, position._2.file, piece)
+              Square(position._2.rank, position._2.file, piece)
             else
               position._2
-            ))
+            )
           ).toMap
         }
       }
@@ -68,13 +68,12 @@ object Main extends App {
           @tailrec
           def handleFileFEN(fileFEN: String, remaining: List[String], accumulator: List[Square], files: List[String] = allFiles): List[Square] = fileFEN match {
             case "0" if remaining.isEmpty => accumulator
-            case PieceFEN(piece) => {
+            case PieceFEN(piece) =>
               println(s"${files.head}$rank: $piece")
-              val accumulated = accumulator :+ new Square(rank, files.head, Some(Piece.fromFEN(piece)))
+              val accumulated = accumulator :+ Square(rank, files.head, Some(Piece.fromFEN(piece)))
               if (remaining.isEmpty) accumulated
               else handleFileFEN(remaining.head, remaining.tail, accumulated, files.tail)
-            }
-            case EmptySquare(countString) => handleFileFEN((countString.toInt - 1).toString, remaining, accumulator :+ new Square(rank, files.head, None), files.tail)
+            case EmptySquare(countString) => handleFileFEN((countString.toInt - 1).toString, remaining, accumulator :+ Square(rank, files.head, None), files.tail)
             case "0" => handleFileFEN(remaining.head, remaining.tail, accumulator, files)
           }
           println(s"next rank: $rankFEN")
@@ -175,7 +174,7 @@ object Main extends App {
   println(fenRank.toString)
 
   object FENTests {
-    def test(list: List[Option[game.Piece]], expected: String) = {
+    def test(list: List[Option[game.Piece]], expected: String): Unit = {
       val result = list.foldLeft(new game.FENRank)(_ :+ _).toString
       if (result != expected) {
         println(list)
@@ -184,14 +183,14 @@ object Main extends App {
       }
     }
 
-    def testAll = {
+    def testAll(): Unit = {
       val pawn = new game.Pawn(game.Side.White)
       test(List(None, None, Some(pawn)), "2P")
       test(List(Some(pawn), None, None), "P2")
       test(List(None, Some(pawn), None), "1P1")
     }
   }
-  FENTests.testAll
+  FENTests.testAll()
 
   object BoardTests {
   }
