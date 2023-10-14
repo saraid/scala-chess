@@ -35,7 +35,7 @@ object Main extends App {
             else
               position._2
             )
-          ).toMap
+          )
         }
       }
 
