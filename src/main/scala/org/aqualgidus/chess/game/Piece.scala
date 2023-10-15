@@ -86,20 +86,18 @@ case class Pawn(override val side: Side) extends Piece(side) {
     implicit val implicitSide: Side = side
 
     val doubleAdvance: Option[DoubleAdvance] = state.activeColor match {
-      case Side.White => {
+      case Side.White =>
         val forward1 = from.forward
         val forward2 = forward1.flatMap(_.forward)
         if (List(from.rank == 2, forward1.map(_.occupant).isDefined, forward2.map(_.occupant).isDefined).forall(identity))
           Some(DoubleAdvance(from, forward2.get))
         else None
-      }
-      case Side.Black => {
+      case Side.Black =>
         val forward1 = from.forward
         val forward2 = forward1.flatMap(_.forward)
         if (List(from.rank == 7, forward1.map(_.occupant).isDefined, forward2.map(_.occupant).isDefined).forall(identity))
           Some(DoubleAdvance(from, forward2.get))
         else None
-      }
     }
 
     val basicMove = from.forward.map { square => BasicMove(from, to = square) }

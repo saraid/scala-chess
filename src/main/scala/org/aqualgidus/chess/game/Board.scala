@@ -119,7 +119,7 @@ case class Square(rank: Int, file: String, occupant: Option[Piece] = None) {
     case Side.Black => board.squares.get(s"$file${rank + 1}")
   }
 
-  val allFiles = List("a", "b", "c", "d", "e", "f", "g", "h")
+  val allFiles: List[String] = List("a", "b", "c", "d", "e", "f", "g", "h")
 
   def leftFile: String = try { allFiles(allFiles.indexOf(file) - 1) } catch {
     case _: IndexOutOfBoundsException => ""
@@ -133,6 +133,6 @@ case class Square(rank: Int, file: String, occupant: Option[Piece] = None) {
 }
 
 object SquareTesting extends App {
-  implicit val board = Board.standard
+  implicit val board: Board = Board.standard
   board("e4").left
 }

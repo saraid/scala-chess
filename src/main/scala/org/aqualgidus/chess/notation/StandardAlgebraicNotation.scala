@@ -26,13 +26,12 @@ object StandardAlgebraicNotation {
 
   def apply(state: State, movetext: String): Move = {
     movetext match {
-      case CastlePattern(castle) => {
+      case CastlePattern(castle) =>
         castle.replaceAll("[0]", "O") match {
           case "O-O" => Castling(Castling.KingSide)
           case "O-O-O" => Castling(Castling.QueenSide)
         }
-      }
-      case PromotionPattern(dFile, _dRank, file, rank, newRank) => {
+      case PromotionPattern(dFile, _dRank, file, rank, newRank) =>
         val candidatePawns: List[Square] = state.board
           .previousRank(rank.toInt, state.activeColor)
           .filter { square =>
@@ -50,8 +49,7 @@ object StandardAlgebraicNotation {
         }
 
         Promotion(candidatePawns.head, state.board(s"$file$rank"), PromoteTo(newRank))
-      }
-      case MovePattern(pieceMoved, dFile, dRank, file, rank) => {
+      case MovePattern(pieceMoved, dFile, dRank, file, rank) =>
         println("is basic move: %s %s %s %s %s".format(Option(pieceMoved), Option(dFile), Option(dRank), file, rank))
         val destination = state.board(s"$file$rank")
 
@@ -80,7 +78,6 @@ object StandardAlgebraicNotation {
         }
 
         BasicMove(candidateOrigins.head, destination)
-      }
     }
   }
 }
