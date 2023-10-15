@@ -26,7 +26,7 @@ case class TypicalMove(from: Square, to: Square) extends Move {
     else if (pieceToMove.side != state.activeColor) false
     else if (to.occupant.isDefined && !isCapture) false
     else if (to.occupant.exists(_.side == pieceToMove.side)) false
-    else if (checksOwnSide) false
+//    else if (checksOwnSide) false
     else true
   }
 
@@ -83,13 +83,12 @@ case class TypicalMove(from: Square, to: Square) extends Move {
         StandardAlgebraicNotation(state, List(pieceMarker, currentAttempt, destination).flatten.mkString)
         currentAttempt
       } catch {
-        case _: StandardAlgebraicNotation.AmbiguousPieceToMove => {
+        case _: StandardAlgebraicNotation.AmbiguousPieceToMove =>
           phase match {
             case "only file" => buildDisambiguation("only rank", from.file)
             case "only rank" => buildDisambiguation("full coord", from.rank.toString)
             case "full coord" => s"${from.file}${from.rank}"
           }
-        }
         case _: StandardAlgebraicNotation.CouldNotFindPieceToMove => ""
       }
     }
@@ -104,10 +103,10 @@ case class TypicalMove(from: Square, to: Square) extends Move {
       }
       else ""
 
-    val checkText =
-      if (causesCheckmate) "#"
-      else if (checksEnemySide) "+"
-      else ""
+    val checkText = if (checksEnemySide) "+" else ""
+//      if (causesCheckmate) "#"
+//      else if (checksEnemySide) "+"
+//      else ""
 
     List(pieceMarker, disambiguation, captureText, destination, checkText)
       .filter(_.nonEmpty).mkString

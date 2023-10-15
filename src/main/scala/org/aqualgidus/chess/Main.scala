@@ -5,9 +5,9 @@ import org.aqualgidus.chess.notation.{StandardAlgebraicNotation => SAN}
 
 object Main extends App {
 
-  val game = new Game
+  val game = Game.initial
   val whiteKing = King(Side.White)
-  println(game.state.board.occupy("e1", Some(whiteKing)).toFEN)
+  println(game.board.occupy("e1", Some(whiteKing)).toFEN)
 
   val fenRank = new FENRank :+ None :+ None :+ None :+ None :+ Some(whiteKing) :+ None :+ None :+ None
   println(fenRank.toString)
@@ -44,19 +44,12 @@ object Main extends App {
 
 
   // Fool's Mate
-  val foolsMate = List(
-    TypicalMove(game.state.board("e2"), game.state.board("f3")),
-    TypicalMove(game.state.board("e7"), game.state.board("e5")),
-    TypicalMove(game.state.board("g2"), game.state.board("g4")),
-    TypicalMove(game.state.board("d8"), game.state.board("h4")),
-  )
-  println(foolsMate.map(_.toSAN(game.state)))
-  val endState = foolsMate.foldLeft(game.state) { (state, move) => {
-    println(state.toFEN)
-    move.execute(state)
+  val foolsMate = List("f3", "e5", "g4", "Qh4")
+  val endState = foolsMate.foldLeft(Game.initial) { (game, moveText) => {
+    println("%s : %s".format(game.lastMove.map(_.toSAN(game.lastState)), game.lastState.toFEN))
+    game.play(moveText)
   } }
-  println(endState.toFEN)
+  println("%s : %s".format(endState.lastMove.map(_.toSAN(endState.lastState)), endState.lastState.toFEN))
 
-  println(SAN(game.state, "e4"))
-
+  println(endState.toPGN)
 }

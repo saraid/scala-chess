@@ -51,7 +51,7 @@ case class State(
   def nextColor: Side = List(Side.White, Side.Black).filter(_ != activeColor).head
 
   def king(side: Side): Option[Square] = board.occupiedSquares.find { square => square.occupant match {
-    case King(kingSide) => kingSide == side
+    case Some(King(kingSide)) => kingSide == side
     case _ => false
   }}
 
@@ -81,6 +81,15 @@ case class State(
     ).mkString(sep = " ")
 }
 object State {
+  def initial: State = State(
+    activeColor = Side.White,
+    board = Board.standard,
+    enPassantTarget = None,
+    castlingAvailability = CastlingAvailability.fromFen("KQkq"),
+    halfMoveClock = 0,
+    fullMoveNumber = 1
+  )
+
   def fromFEN(fen: String): State = {
     val Array(
       boardFen: String,

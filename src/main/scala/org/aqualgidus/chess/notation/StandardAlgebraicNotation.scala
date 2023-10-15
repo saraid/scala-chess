@@ -22,7 +22,7 @@ object StandardAlgebraicNotation {
   private val MovePattern: Regex = List(anyPiece, disambiguation, isCapture, destination, isCheck).mkString.r
 
   class AmbiguousPieceToMove(message: String) extends RuntimeException(message)
-  class CouldNotFindPieceToMove extends RuntimeException
+  class CouldNotFindPieceToMove(message: String) extends RuntimeException(message)
 
   def apply(state: State, movetext: String): Move = {
     movetext match {
@@ -45,7 +45,7 @@ object StandardAlgebraicNotation {
         if (candidatePawns.size > 1) {
           throw new AmbiguousPieceToMove(candidatePawns.mkString(sep = ", "))
         } else if (candidatePawns.isEmpty) {
-          throw new CouldNotFindPieceToMove
+          throw new CouldNotFindPieceToMove((state.toFEN, movetext).toString)
         }
 
         Promotion(candidatePawns.head, state.board(s"$file$rank"), PromoteTo(newRank))
@@ -56,14 +56,14 @@ object StandardAlgebraicNotation {
         val candidateOrigins = state.board.occupiedSquares
           .filter { square => square.occupant.get.side == state.activeColor}
           .filter { square =>
-            Option(pieceMoved).filter(_.nonEmpty).flatMap { pieceType =>
+            Option(pieceMoved).flatMap { pieceType =>
               square.occupant.map {
                 case King(_) => pieceType == "K"
                 case Queen(_) => pieceType == "Q"
                 case Rook(_) => pieceType == "R"
                 case Bishop(_) => pieceType == "B"
                 case Knight(_) => pieceType == "N"
-                case Pawn(_) => pieceType == "P"
+                case Pawn(_) => pieceType == "" // if no pieceMarker present, assume pawn
               }
             }.getOrElse(true) // no pieceMoved set, so we don't filter out anything
           }
@@ -74,10 +74,10 @@ object StandardAlgebraicNotation {
         if (candidateOrigins.size > 1) {
           throw new AmbiguousPieceToMove(candidateOrigins.mkString(sep = ", "))
         } else if (candidateOrigins.isEmpty) {
-          throw new CouldNotFindPieceToMove
+          throw new CouldNotFindPieceToMove((state.toFEN, movetext).toString)
         }
 
-        TypicalMove(candidateOrigins.head, destination)
+        candidateOrigins.head.occupant.get.moveList(state, candidateOrigins.head).find(move => move.destination.get == destination).get
     }
   }
 }
@@ -87,7 +87,7 @@ object SANApplyTest extends App {
      def apply(state: State, movetext: String): Move = StandardAlgebraicNotation(state, movetext)
   }
 
-  val game = new Game
+  val game = Game.initial
   println(SAN(game.state, "e4"))
 
   // black to promote f2 to queen

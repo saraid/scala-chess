@@ -13,7 +13,7 @@ trait MoveListFromWalkPath {
         else path
       else walk(includeSquare)(walker(cursor.get), path :+ cursor.get)(walker)
 
-    val squareEmptyOrOccupiedByEnemy: Square => Boolean = (square) => !square.occupant.map(_.side).contains(side)
+    val squareEmptyOrOccupiedByEnemy: Square => Boolean = square => !square.occupant.map(_.side).contains(side)
 
     walk(squareEmptyOrOccupiedByEnemy)(walker(from), List.empty)(walker)
   }
@@ -230,8 +230,8 @@ case class Pawn(override val side: Side) extends Piece(side) {
 }
 
 object PawnTesting  {
-  val game = new Game
-  val e2 = game.state.board("e2")
+  val game = Game.initial
+  val e2 = game.board("e2")
   println(e2.occupant)
   val pawn = e2.occupant.get
   println(pawn.moveList(game.state, e2))
