@@ -3,6 +3,9 @@ package org.aqualgidus.chess.game
 import org.aqualgidus.chess.notation.ForsytheEdwardsNotation
 
 class CastlingAvailability(value: Set[(Side, CastleKind)]) extends ForsytheEdwardsNotation {
+  def contains(side: Side, kind: CastleKind): Boolean = contains((side, kind))
+  def contains(ca: (Side, CastleKind)): Boolean = value.contains(ca)
+
   def remove(side: Side): CastlingAvailability = value.filter(_._1 == side).foldLeft(this)(_ remove _)
   def remove(kind: CastleKind): CastlingAvailability = value.filter(_._2 == kind).foldLeft(this)(_ remove _)
   def remove(side: Side, kind: CastleKind): CastlingAvailability = remove((side, kind))
@@ -23,6 +26,7 @@ class CastlingAvailability(value: Set[(Side, CastleKind)]) extends ForsytheEdwar
 }
 
 object CastlingAvailability {
+  def none: CastlingAvailability = fromFen("-")
   def fromFen(code: String): CastlingAvailability = {
     code match {
       case "-" => new CastlingAvailability(Set.empty)
@@ -45,6 +49,26 @@ case class State(
   fullMoveNumber: Int
 ) extends ForsytheEdwardsNotation {
   def nextColor: Side = List(Side.White, Side.Black).filter(_ != activeColor).head
+
+  def king(side: Side): Option[Square] = board.occupiedSquares.find { square => square.occupant match {
+    case King(kingSide) => kingSide == side
+    case _ => false
+  }}
+
+  def nextState(
+    board: Board = board,
+    enPassantTarget: Option[Square] = enPassantTarget,
+    castlingAvailability: CastlingAvailability = castlingAvailability,
+    isHalfMove: Boolean = false
+ ): State =
+    copy(
+      activeColor = nextColor,
+      board = board,
+      enPassantTarget = enPassantTarget,
+      castlingAvailability = castlingAvailability,
+      halfMoveClock = if (isHalfMove) halfMoveClock + 1 else halfMoveClock,
+      fullMoveNumber = if (activeColor == Side.Black) fullMoveNumber + 1 else fullMoveNumber,
+    )
 
   def toFEN: String =
     List(

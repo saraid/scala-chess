@@ -5,7 +5,7 @@ import org.aqualgidus.chess.game._
 import scala.util.matching.Regex
 
 trait StandardAlgebraicNotation {
-  def toSAN: String
+  def toSAN(implicit state: State): String
 }
 
 object StandardAlgebraicNotation {
@@ -45,12 +45,12 @@ object StandardAlgebraicNotation {
         if (candidatePawns.size > 1) {
           throw new AmbiguousPieceToMove(candidatePawns.mkString(sep = ", "))
         } else if (candidatePawns.isEmpty) {
-          throw new RuntimeException("could not find pawn to promote")
+          throw new CouldNotFindPieceToMove
         }
 
         Promotion(candidatePawns.head, state.board(s"$file$rank"), PromoteTo(newRank))
       case MovePattern(pieceMoved, dFile, dRank, file, rank) =>
-        println("is basic move: %s %s %s %s %s".format(Option(pieceMoved), Option(dFile), Option(dRank), file, rank))
+//        println("is basic move: %s %s %s %s %s".format(Option(pieceMoved), Option(dFile), Option(dRank), file, rank))
         val destination = state.board(s"$file$rank")
 
         val candidateOrigins = state.board.occupiedSquares
@@ -74,15 +74,15 @@ object StandardAlgebraicNotation {
         if (candidateOrigins.size > 1) {
           throw new AmbiguousPieceToMove(candidateOrigins.mkString(sep = ", "))
         } else if (candidateOrigins.isEmpty) {
-          throw new RuntimeException("could not find piece to move")
+          throw new CouldNotFindPieceToMove
         }
 
-        BasicMove(candidateOrigins.head, destination)
+        TypicalMove(candidateOrigins.head, destination)
     }
   }
 }
 
-object SANAppTest extends App {
+object SANApplyTest extends App {
   object SAN {
      def apply(state: State, movetext: String): Move = StandardAlgebraicNotation(state, movetext)
   }

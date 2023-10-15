@@ -45,12 +45,12 @@ object Main extends App {
 
   // Fool's Mate
   val foolsMate = List(
-    BasicMove(game.state.board("e2"), game.state.board("f3")),
-    BasicMove(game.state.board("e7"), game.state.board("e5")),
-    BasicMove(game.state.board("g2"), game.state.board("g4")),
-    BasicMove(game.state.board("d8"), game.state.board("h4")),
+    TypicalMove(game.state.board("e2"), game.state.board("f3")),
+    TypicalMove(game.state.board("e7"), game.state.board("e5")),
+    TypicalMove(game.state.board("g2"), game.state.board("g4")),
+    TypicalMove(game.state.board("d8"), game.state.board("h4")),
   )
-  println(foolsMate.map(_.toSAN))
+  println(foolsMate.map(_.toSAN(game.state)))
   val endState = foolsMate.foldLeft(game.state) { (state, move) => {
     println(state.toFEN)
     move.execute(state)

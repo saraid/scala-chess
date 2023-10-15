@@ -121,12 +121,12 @@ case class Square(rank: Int, file: String, occupant: Option[Piece] = None) {
 
   val allFiles: List[String] = List("a", "b", "c", "d", "e", "f", "g", "h")
 
-  def leftFile: String = try { allFiles(allFiles.indexOf(file) - 1) } catch {
+  private def leftFile: String = try { allFiles(allFiles.indexOf(file) - 1) } catch {
     case _: IndexOutOfBoundsException => ""
   }
   def left(implicit board: Board): Option[Square] = board.squares.get(s"$leftFile$rank")
 
-  def rightFile: String = try { allFiles(allFiles.indexOf(file) + 1) } catch {
+  private def rightFile: String = try { allFiles(allFiles.indexOf(file) + 1) } catch {
     case _: IndexOutOfBoundsException => ""
   }
   def right(implicit board: Board): Option[Square] = board.squares.get(s"$rightFile$rank")
