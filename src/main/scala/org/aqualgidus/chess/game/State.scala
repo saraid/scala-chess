@@ -48,7 +48,7 @@ case class State(
   halfMoveClock: Int,
   fullMoveNumber: Int
 ) extends ForsytheEdwardsNotation {
-  def nextColor: Side = List(Side.White, Side.Black).filter(_ != activeColor).head
+  def nextColor: Side = activeColor.otherSide
 
   def king(side: Side): Option[Square] = board.occupiedSquares.find { square => square.occupant match {
     case Some(King(kingSide)) => kingSide == side

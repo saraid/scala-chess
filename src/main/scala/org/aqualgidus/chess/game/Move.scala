@@ -30,7 +30,7 @@ case class TypicalMove(from: Square, to: Square) extends Move {
     else true
   }
 
-  def enemySide: Side = Side.list.find(_ != pieceToMove.side).get
+  def enemySide: Side = pieceToMove.side.otherSide
   def checksOwnSide(implicit state: State): Boolean = placesIntoCheck(state, pieceToMove.side)
   def checksEnemySide(implicit state: State): Boolean = placesIntoCheck(state, enemySide)
   def causesCheckmate(implicit state: State): Boolean = {
