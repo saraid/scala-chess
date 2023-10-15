@@ -35,14 +35,20 @@ case class TypicalMove(from: Square, to: Square) extends Move {
   def checksEnemySide(implicit state: State): Boolean = placesIntoCheck(state, enemySide)
   def causesCheckmate(implicit state: State): Boolean = {
     val causesCheck = checksEnemySide(state)
-    def kingCannotMove = state.king(enemySide).map { square => square.occupant.get.moveList(state, square) }.get.isEmpty
+    def kingCannotMove = state.king(enemySide) match {
+      case Some((square, occupant)) => occupant.moveList(state, square).isEmpty
+      case None => false
+    }
     causesCheck && kingCannotMove
   }
 
   def placesIntoCheck(implicit state: State, targetSide: Side): Boolean =
-    state.board.occupiedSquares.flatMap { square =>
-      square.occupant.map(_.moveList(state, from = square))
-    }.flatten.map(_.destination).filter(_.isDefined).map(_.get).contains(state.king(targetSide))
+    state.king(targetSide).map { tuple => tuple._1 }.iterator.exists { (kingSquare: Square) =>
+      state.board.occupiedSquares.flatMap { (tuple: (Square, Piece)) => {
+        val (square, occupant) = tuple
+        occupant.moveList(state, from = square)
+      }}.toList.map(_.destination).contains(kingSquare)
+    }
 
   def enPassantTarget(implicit board: Board, side: Side): Option[Square] = None
   def boardAfterMove(implicit state: State): Board = state.board.move(from, to)

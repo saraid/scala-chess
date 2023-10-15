@@ -50,10 +50,10 @@ case class State(
 ) extends ForsytheEdwardsNotation {
   def nextColor: Side = activeColor.otherSide
 
-  def king(side: Side): Option[Square] = board.occupiedSquares.find { square => square.occupant match {
-    case Some(King(kingSide)) => kingSide == side
+  def king(side: Side): Option[(Square, Piece)] = board.occupiedSquares.iterator.find(tuple => tuple._2 match {
+    case King(kingSide) => kingSide == side
     case _ => false
-  }}
+  })
 
   def nextState(
     board: Board = board,

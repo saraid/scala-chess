@@ -17,7 +17,12 @@ class Board extends ForsytheEdwardsNotation {
     case Side.White => rank(index - 1)
     case Side.Black => rank(index + 1)
   }
-  def occupiedSquares: List[Square] = squares.values.filter { _.occupant.isDefined }.toList
+  def occupiedSquares: Map[Square, Piece] = squares.values.foldLeft(Map.empty[Square, Piece]) { (map, square) => {
+    square.occupant match {
+      case Some(piece) => map + (square -> piece)
+      case _ => map
+    }
+  }}
 
   def ++(newSquares: List[Square]): Board = newSquares.foldLeft(this) { (newBoard, square) => newBoard.occupy(square) }
 
