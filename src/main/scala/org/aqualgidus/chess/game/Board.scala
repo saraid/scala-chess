@@ -10,6 +10,15 @@ class Board extends ForsytheEdwardsNotation {
   } yield (s"$file$rank", Square(rank, file))).toMap
   def apply(position: String): Square = squares(position)
 
+  def rank(index: Int): List[Square] = for {
+    file <- List("a", "b", "c", "d", "e", "f", "g", "h")
+  } yield squares(s"$file$index")
+  def previousRank(index: Int, activeSide: Side): List[Square] = activeSide match {
+    case Side.White => rank(index - 1)
+    case Side.Black => rank(index + 1)
+  }
+  def occupiedSquares: List[Square] = squares.values.filter { _.occupant.isDefined }.toList
+
   def ++(newSquares: List[Square]): Board = newSquares.foldLeft(this) { (newBoard, square) => newBoard.occupy(square) }
 
   def occupy(square: Square): Board = occupy(square.position, square.occupant)
@@ -99,4 +108,31 @@ class FENRank(value: List[Option[Piece]] = List.empty) {
 
 case class Square(rank: Int, file: String, occupant: Option[Piece] = None) {
   val position = s"$file$rank"
+
+  def forward(implicit board: Board, side: Side): Option[Square] = side match {
+    case Side.White => board.squares.get(s"$file${rank + 1}")
+    case Side.Black => board.squares.get(s"$file${rank - 1}")
+  }
+
+  def backward(implicit board: Board, side: Side): Option[Square] = side match {
+    case Side.White => board.squares.get(s"$file${rank - 1}")
+    case Side.Black => board.squares.get(s"$file${rank + 1}")
+  }
+
+  val allFiles = List("a", "b", "c", "d", "e", "f", "g", "h")
+
+  def leftFile: String = try { allFiles(allFiles.indexOf(file) - 1) } catch {
+    case _: IndexOutOfBoundsException => ""
+  }
+  def left(implicit board: Board): Option[Square] = board.squares.get(s"$leftFile$rank")
+
+  def rightFile: String = try { allFiles(allFiles.indexOf(file) + 1) } catch {
+    case _: IndexOutOfBoundsException => ""
+  }
+  def right(implicit board: Board): Option[Square] = board.squares.get(s"$rightFile$rank")
+}
+
+object SquareTesting extends App {
+  implicit val board = Board.standard
+  board("e4").left
 }

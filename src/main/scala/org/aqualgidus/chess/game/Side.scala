@@ -1,8 +1,12 @@
 package org.aqualgidus.chess.game
 
-class Side(name: String)
+sealed class Side(name: String)
 
 object Side {
-  object White extends Side("white")
-  object Black extends Side("black")
+  final case object White extends Side("white")
+  final case object Black extends Side("black")
+  def fromFEN(string: String): Side = string match {
+    case "w" => Side.White
+    case "b" => Side.Black
+  }
 }

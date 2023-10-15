@@ -3,6 +3,7 @@ package org.aqualgidus.chess.game
 import org.aqualgidus.chess.notation.StandardAlgebraicNotation
 
 abstract class Move extends StandardAlgebraicNotation {
+  val destination: Option[Square]
   def isValid(state: State): Boolean
   def isHalfMove: Boolean
 
@@ -10,6 +11,7 @@ abstract class Move extends StandardAlgebraicNotation {
 }
 
 case class BasicMove(from: Square, to: Square) extends Move {
+  override val destination: Option[Square] = Some(to)
   val pieceToMove: Piece = from.occupant.get // From space must be occupied.
   def isCapture: Boolean = to.occupant.isDefined && to.occupant.get.side != pieceToMove.side
   def isHalfMove: Boolean = !isCapture && (from.occupant match {
@@ -34,8 +36,8 @@ case class BasicMove(from: Square, to: Square) extends Move {
     val newCastlingAvailability = pieceToMove match {
       case King(_) => state.castlingAvailability.remove(side = pieceToMove.side)
       case Rook(rook) => from.file match {
-        case "a" => state.castlingAvailability.remove(side = pieceToMove.side, kind = "queenside")
-        case "h" => state.castlingAvailability.remove(side = pieceToMove.side, kind = "kingside")
+        case "a" => state.castlingAvailability.remove(side = pieceToMove.side, Castling.QueenSide)
+        case "h" => state.castlingAvailability.remove(side = pieceToMove.side, Castling.KingSide)
       }
       case _ => state.castlingAvailability
     }
@@ -53,5 +55,43 @@ case class BasicMove(from: Square, to: Square) extends Move {
 
   def toSAN: String = {
     s"${from.position}-${to.position}" // TODO
+  }
+}
+
+class DoubleAdvance(from: Square, to: Square) extends BasicMove(from, to)
+object DoubleAdvance { def apply(from: Square, to: Square): DoubleAdvance = new DoubleAdvance(from, to) }
+class EnPassant(from: Square, to: Square) extends BasicMove(from, to)
+
+case class Castling(kind: CastleKind) extends Move {
+  override val destination: Option[Square] = None
+  def isValid(state: State): Boolean = true
+  def isHalfMove: Boolean = false
+  def execute(state: State): State = state
+  def toSAN: String = ""
+}
+sealed case class CastleKind(name: String)
+object Castling {
+  final object KingSide extends CastleKind("kingside")
+  final object QueenSide extends CastleKind("queenside")
+}
+
+case class Promotion(from: Square, to: Square, newRank: PromoteTo) extends Move {
+  override val destination: Option[Square] = Some(to)
+  def isValid(state: State): Boolean = true
+  def isHalfMove: Boolean = false
+  def execute(state: State): State = state
+  def toSAN: String = ""
+}
+sealed case class PromoteTo(rank: String)
+object PromoteTo {
+  final object Queen extends PromoteTo("Q")
+  final object Rook extends PromoteTo("R")
+  final object Bishop extends PromoteTo("B")
+  final object Knight extends PromoteTo("N")
+  def apply(string: String): PromoteTo = string match {
+    case "Q" => Queen
+    case "R" => Rook
+    case "B" => Bishop
+    case "N" => Knight
   }
 }

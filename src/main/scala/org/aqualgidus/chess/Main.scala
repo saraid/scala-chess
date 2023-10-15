@@ -1,28 +1,9 @@
 package org.aqualgidus.chess
 
 import org.aqualgidus.chess.game.{State, _}
+import org.aqualgidus.chess.notation.{StandardAlgebraicNotation => SAN}
 
 object Main extends App {
-  class Game {
-    class History(history: List[(Option[Move], State)]) {
-      def :+(move: Move): History = new History(history :+ (Some(move), move.execute(history.last._2)))
-    }
-    object History {
-      def apply(initial: State, moves: List[Move]): History =
-        moves.foldLeft(new History(List((None, initial))))(_ :+ _)
-    }
-
-    val state = State(
-      activeColor = Side.White,
-      board = Board.standard,
-      enPassantTarget = None,
-      castlingAvailability = CastlingAvailability.all,
-      halfMoveClock = 0,
-      fullMoveNumber = 1
-    )
-    val history: History = History(state, List.empty)
-
-  }
 
   val game = new Game
   val whiteKing = King(Side.White)
@@ -75,5 +56,7 @@ object Main extends App {
     move.execute(state)
   } }
   println(endState.toFEN)
+
+  println(SAN(game.state, "e4"))
 
 }
